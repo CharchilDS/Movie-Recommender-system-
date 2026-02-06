@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender - Discover Movies You'll Love</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <h1>🎬 Movie Recommender</h1>
+            <p class="tagline">Discover movies you'll love based on your favorites</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Search Section -->
+            <div class="search-section">
+                <h2>Find Similar Movies</h2>
+                <p class="instruction">Search for a movie to get personalized recommendations</p>
+                
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="movieSearch" 
+                        placeholder="Search for a movie (e.g., Avatar, Inception, Titanic...)"
+                        autocomplete="off"
+                    >
+                    <button id="searchBtn" onclick="searchMovie()">
+                        <span id="btnText">Search</span>
+                        <span id="btnLoader" class="loader hidden"></span>
+                    </button>
+                </div>
+
+                <!-- Autocomplete Suggestions -->
+                <div id="suggestions" class="suggestions hidden"></div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message hidden"></div>
+            </div>
+
+            <!-- Selected Movie Display -->
+            <div id="selectedMovie" class="selected-movie hidden">
+                <h3>Recommendations based on:</h3>
+                <div class="movie-badge" id="selectedMovieName"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="results-section hidden">
+                <h3>Recommended Movies</h3>
+                <div id="movieCards" class="movie-grid"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Finding perfect recommendations for you...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Built with ❤️ using Flask & Machine Learning</p>
+            <p class="footer-links">
+                <a href="/api" target="_blank">API Documentation</a>
+                <span class="separator">•</span>
+                <a href="https://github.com/CharchilDS" target="_blank">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
