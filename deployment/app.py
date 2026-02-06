@@ -5,7 +5,8 @@ import pandas as pd
 app = Flask(__name__)
 
 # Load the pickle files
-movies = pickle.load(open('movie_list.pkl', 'rb'))
+movie_list = pickle.load(open('movie_list.pkl', 'rb'))  # list of dicts
+movies = pd.DataFrame(movie_list)                       # convert to DataFrame
 similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
