@@ -1,8 +1,8 @@
-# 🎬 Movie Recommender System
+#  Movie Recommender System
 
 A beautiful, modern web application that recommends movies based on content similarity using Machine Learning.
 
-## ✨ Features
+##  Features
 
 - **Smart Recommendations**: Get 5 similar movie recommendations based on any movie
 - **Autocomplete Search**: Real-time search suggestions as you type
@@ -11,7 +11,7 @@ A beautiful, modern web application that recommends movies based on content simi
 - **REST API**: Full API access for developers
 - **Fast & Efficient**: Pre-computed similarity matrix for instant results
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Backend:**
 - Python 3.9+
@@ -29,7 +29,7 @@ A beautiful, modern web application that recommends movies based on content simi
 - Cosine Similarity
 - CountVectorizer (Bag of Words)
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 movie-recommender-api/
@@ -49,7 +49,7 @@ movie-recommender-api/
 └── README.md                   # This file
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -159,7 +159,7 @@ curl -X POST http://localhost:5000/api/recommend \
 curl "http://localhost:5000/api/search?q=dark%20knight"
 ```
 
-## 🎯 How It Works
+##  How It Works
 
 1. **Data Processing**: Movies are processed to extract key features (genres, cast, crew, keywords, overview)
 2. **Feature Engineering**: Features are combined into a single "tags" column
@@ -167,7 +167,7 @@ curl "http://localhost:5000/api/search?q=dark%20knight"
 4. **Similarity Calculation**: Cosine similarity measures how similar movies are
 5. **Recommendations**: Top 5 most similar movies are returned
 
-## 🐳 Docker Deployment
+##  Docker Deployment
 
 ```bash
 # Build image
@@ -177,7 +177,7 @@ docker build -t movie-recommender .
 docker run -p 5000:5000 movie-recommender
 ```
 
-## 🌐 Cloud Deployment
+##  Cloud Deployment
 
 ### Deploy to Render:
 
@@ -193,7 +193,7 @@ docker run -p 5000:5000 movie-recommender
 3. Connect repository
 4. Deploy automatically
 
-## 🎨 Customization
+##  Customization
 
 ### Change the color scheme:
 Edit `static/css/style.css` and modify the CSS variables:
@@ -213,13 +213,13 @@ In `app.py`, change the number in the `recommend()` function:
 for i in distances[1:6]:  # Change 6 to any number
 ```
 
-## 📊 Dataset
+##  Dataset
 
 - **Source**: TMDB 5000 Movie Dataset (Kaggle)
 - **Movies**: 4,806 movies
 - **Features**: Genres, Cast, Crew, Keywords, Overview
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Feel free to:
 - Report bugs
@@ -227,16 +227,16 @@ Contributions are welcome! Feel free to:
 - Improve documentation
 - Submit pull requests
 
-## 📝 License
+##  License
 
 This project is open source and available for educational purposes.
 
-## 👤 Author
+##  Author
 
 Built by **Charchil**
 - GitHub: [@CharchilDS](https://github.com/CharchilDS)
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - TMDB for the movie dataset
 - Kaggle community
@@ -245,4 +245,4 @@ Built by **Charchil**
 
 ---
 
-**⭐ If you found this helpful, please star the repository!**
+** If you found this helpful, please star the repository!**
