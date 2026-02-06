@@ -27,5 +27,5 @@ COPY similarity.pkl .
 EXPOSE 5000
 
 # Run the application with gunicorn
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app"]
+CMD ["gunicorn", "app:app"]
 
