@@ -15,17 +15,6 @@ The application is fully deployed and accessible to everyone! Search for your fa
 
 ---
 
-## 📸 Screenshots
-
-### Homepage - Search Interface
-![Homepage Screenshot](deployment/screenshots/screenshot1.jpg)
-*Clean, modern interface with search functionality*
-
-### Recommendation Results
-![Results Screenshot](deployment/screenshots/screenshot2.jpg)
-*Smart recommendations with similarity scores and visual progress bars*
-
----
 
 ## 🌟 Project Overview
 
