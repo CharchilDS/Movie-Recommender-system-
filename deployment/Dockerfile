@@ -13,19 +13,14 @@ RUN python -m pip install --upgrade pip setuptools wheel \
  && python -m pip install --no-cache-dir -r requirements.txt \
  && python -c "import numpy, pandas; print('numpy', numpy.__version__); print('pandas', pandas.__version__)"
 
-
 # Copy application code
 COPY app.py .
 COPY templates/ templates/
 COPY static/ static/
 
-# Copy pickle files (make sure these exist!)
-COPY movie_list.pkl .
-COPY similarity.pkl .
-
-# Expose port 5000
+# Expose port (Render will set PORT env variable)
 EXPOSE 5000
 
 # Run the application with gunicorn
-CMD ["gunicorn", "app:app"]
-
+# Pickle files will be downloaded on first startup from Google Drive
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app

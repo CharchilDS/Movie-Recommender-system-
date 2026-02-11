@@ -1,13 +1,52 @@
 from flask import Flask, request, jsonify, render_template
 import pickle
 import pandas as pd
+import os
+import requests
 
 app = Flask(__name__)
 
+# Function to download pickle files from Google Drive
+def download_file_from_google_drive(file_id, destination):
+    """Download a file from Google Drive."""
+    if os.path.exists(destination):
+        print(f"✓ {destination} already exists, skipping download")
+        return
+    
+    print(f"⬇️  Downloading {destination}... (this may take 1-2 minutes)")
+    URL = "https://drive.google.com/uc?export=download"
+    
+    session = requests.Session()
+    response = session.get(URL, params={'id': file_id, 'confirm': 't'}, stream=True)
+    
+    # Save file
+    total_size = 0
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(32768):
+            if chunk:
+                f.write(chunk)
+                total_size += len(chunk)
+                # Print progress every 10MB
+                if total_size % (10 * 1024 * 1024) < 32768:
+                    print(f"   Downloaded {total_size // (1024*1024)}MB...")
+    
+    print(f" {destination} downloaded successfully! ({total_size // (1024*1024)}MB)")
+
+# Google Drive file IDs (CORRECT ORDER)
+MOVIE_LIST_FILE_ID = "11klM3WOI0qPIhQmdBq2Xx6mIFcYWEsni"  # movie_list.pkl
+SIMILARITY_FILE_ID = "1o0mAJh76uWc3uMkORz6e2o_afXMghLBA"  # similarity.pkl
+
+# Download pickle files if they don't exist
+print("Checking for pickle files...")
+download_file_from_google_drive(MOVIE_LIST_FILE_ID, 'movie_list.pkl')
+download_file_from_google_drive(SIMILARITY_FILE_ID, 'similarity.pkl')
+
 # Load the pickle files
+print("Loading pickle files...")
 movie_list = pickle.load(open('movie_list.pkl', 'rb'))  # list of dicts
 movies = pd.DataFrame(movie_list)                       # convert to DataFrame
 similarity = pickle.load(open('similarity.pkl', 'rb'))
+print(f"✓ Loaded {len(movies)} movies successfully!")
 
 # Recommendation function
 def recommend(movie):
@@ -139,8 +178,6 @@ def api_docs():
             }
         }
     })
-
-import os
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
