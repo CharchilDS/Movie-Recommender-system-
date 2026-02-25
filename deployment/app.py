@@ -2,51 +2,76 @@ from flask import Flask, request, jsonify, render_template
 import pickle
 import pandas as pd
 import os
-import requests
+import json
+from urllib.parse import quote_plus
+from urllib.request import urlopen
 
 app = Flask(__name__)
 
-# Function to download pickle files from Google Drive
-def download_file_from_google_drive(file_id, destination):
-    """Download a file from Google Drive."""
-    if os.path.exists(destination):
-        print(f"✓ {destination} already exists, skipping download")
-        return
-    
-    print(f"⬇️  Downloading {destination}... (this may take 1-2 minutes)")
-    URL = "https://drive.google.com/uc?export=download"
-    
-    session = requests.Session()
-    response = session.get(URL, params={'id': file_id, 'confirm': 't'}, stream=True)
-    
-    # Save file
-    total_size = 0
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(32768):
-            if chunk:
-                f.write(chunk)
-                total_size += len(chunk)
-                # Print progress every 10MB
-                if total_size % (10 * 1024 * 1024) < 32768:
-                    print(f"   Downloaded {total_size // (1024*1024)}MB...")
-    
-    print(f" {destination} downloaded successfully! ({total_size // (1024*1024)}MB)")
-
-# Google Drive file IDs (CORRECT ORDER)
-MOVIE_LIST_FILE_ID = "11klM3WOI0qPIhQmdBq2Xx6mIFcYWEsni"  # movie_list.pkl
-SIMILARITY_FILE_ID = "1o0mAJh76uWc3uMkORz6e2o_afXMghLBA"  # similarity.pkl
-
-# Download pickle files if they don't exist
-print("Checking for pickle files...")
-download_file_from_google_drive(MOVIE_LIST_FILE_ID, 'movie_list.pkl')
-download_file_from_google_drive(SIMILARITY_FILE_ID, 'similarity.pkl')
-
 # Load the pickle files
-print("Loading pickle files...")
-movie_list = pickle.load(open('movie_list.pkl', 'rb'))  # list of dicts
-movies = pd.DataFrame(movie_list)                       # convert to DataFrame
+movies = pickle.load(open('movie_list.pkl', 'rb'))
 similarity = pickle.load(open('similarity.pkl', 'rb'))
-print(f"✓ Loaded {len(movies)} movies successfully!")
+TMDB_API_KEY = os.environ.get('TMDB_API_KEY', '').strip()
+TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p'
+tmdb_cache = {}
+
+
+def fetch_tmdb_movie(title):
+    if not TMDB_API_KEY:
+        return None
+
+    cache_key = title.strip().lower()
+    if cache_key in tmdb_cache:
+        return tmdb_cache[cache_key]
+
+    try:
+        search_url = (
+            'https://api.themoviedb.org/3/search/movie'
+            f'?api_key={TMDB_API_KEY}&query={quote_plus(title)}&include_adult=false'
+        )
+        with urlopen(search_url, timeout=4) as response:
+            payload = json.loads(response.read().decode('utf-8'))
+
+        results = payload.get('results') or []
+        if not results:
+            tmdb_cache[cache_key] = None
+            return None
+
+        best = results[0]
+        release_date = best.get('release_date') or ''
+        release_year = release_date[:4] if release_date else None
+        poster_path = best.get('poster_path')
+        backdrop_path = best.get('backdrop_path')
+
+        movie_data = {
+            'tmdb_id': best.get('id'),
+            'overview': best.get('overview'),
+            'release_year': release_year,
+            'rating': best.get('vote_average'),
+            'poster_url': f'{TMDB_IMAGE_BASE}/w500{poster_path}' if poster_path else None,
+            'backdrop_url': f'{TMDB_IMAGE_BASE}/original{backdrop_path}' if backdrop_path else None
+        }
+        tmdb_cache[cache_key] = movie_data
+        return movie_data
+    except Exception:
+        return None
+
+
+def enrich_with_tmdb(movie_payload):
+    tmdb = fetch_tmdb_movie(movie_payload.get('title', ''))
+    if not tmdb:
+        movie_payload.update({
+            'tmdb_id': None,
+            'overview': None,
+            'release_year': None,
+            'rating': None,
+            'poster_url': None,
+            'backdrop_url': None
+        })
+        return movie_payload
+
+    movie_payload.update(tmdb)
+    return movie_payload
 
 # Recommendation function
 def recommend(movie):
@@ -64,10 +89,11 @@ def recommend(movie):
         # Get top 5 recommendations
         recommended_movies = []
         for i in distances[1:6]:
-            recommended_movies.append({
+            payload = {
                 'title': movies.iloc[i[0]].title,
                 'similarity_score': round(i[1], 4)
-            })
+            }
+            recommended_movies.append(enrich_with_tmdb(payload))
         
         return recommended_movies
     
@@ -89,7 +115,8 @@ def health():
     return jsonify({
         'status': 'healthy',
         'message': 'Movie Recommender API is running!',
-        'total_movies': len(movies)
+        'total_movies': len(movies),
+        'tmdb_enabled': bool(TMDB_API_KEY)
     })
 
 # Get all available movies (paginated)
@@ -150,9 +177,13 @@ def get_recommendations():
             'error': f'Movie "{movie_name}" not found in database',
             'suggestion': 'Use /api/search?q=movie_name endpoint to find available movies'
         }), 404
+
+    input_movie_details = enrich_with_tmdb({'title': movie_name})
     
     return jsonify({
         'input_movie': movie_name,
+        'input_movie_details': input_movie_details,
+        'tmdb_enabled': bool(TMDB_API_KEY),
         'recommendations': recommendations
     })
 
@@ -167,7 +198,8 @@ def api_docs():
             'GET /api/health': 'Check API health status',
             'GET /api/movies?page=1&per_page=50': 'Get paginated list of available movies',
             'GET /api/search?q=<query>': 'Search for movies by name',
-            'POST /api/recommend': 'Get movie recommendations (body: {"movie": "Movie Name"})'
+            'POST /api/recommend': 'Get movie recommendations (body: {"movie": "Movie Name"})',
+            'TMDB_API_KEY env var': 'Optional. If set, response includes poster/backdrop/rating metadata.'
         },
         'example_usage': {
             'search': '/api/search?q=avatar',
@@ -180,5 +212,4 @@ def api_docs():
     })
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -3,78 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Recommender - Discover Movies You'll Love</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>CINEVERSE | Movie Recommender</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <!-- Header Section -->
-    <header>
-        <div class="container">
-            <h1>🎬 Movie Recommender</h1>
-            <p class="tagline">Discover movies you'll love based on your favorites</p>
+    <div class="bg-grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="/">CINEVERSE</a>
+            <nav class="main-nav" aria-label="Primary navigation">
+                <a href="#" class="active">Home</a>
+                <a href="#discover">Discover</a>
+                <a href="#for-you">For You</a>
+                <a href="#watchlist">Watchlist</a>
+            </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main>
-        <div class="container">
-            <!-- Search Section -->
-            <div class="search-section">
-                <h2>Find Similar Movies</h2>
-                <p class="instruction">Search for a movie to get personalized recommendations</p>
-                
-                <div class="search-container">
-                    <input 
-                        type="text" 
-                        id="movieSearch" 
-                        placeholder="Search for a movie (e.g., Avatar, Inception, Titanic...)"
-                        autocomplete="off"
-                    >
-                    <button id="searchBtn" onclick="searchMovie()">
-                        <span id="btnText">Search</span>
-                        <span id="btnLoader" class="loader hidden"></span>
-                    </button>
+        <section class="hero" id="discover">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <span class="badge">Featured</span>
+                <h1 id="heroTitle">Find Your Next Obsession</h1>
+                <p id="heroSubtitle">Search one movie you love and get 5 highly similar picks instantly.</p>
+                <div class="hero-meta">
+                    <span>Smart Similarity Engine</span>
+                    <span>Top 5 Curated Matches</span>
+                    <span>Fast API Responses</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="recommender" id="for-you">
+            <div class="container">
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Get Recommendations</h2>
+                        <p>Type a movie title. Click a result card to chain recommendations.</p>
+                    </div>
+
+                    <div class="search-container">
+                        <input
+                            type="text"
+                            id="movieSearch"
+                            placeholder="Try: Inception, Interstellar, Avatar..."
+                            autocomplete="off"
+                            aria-label="Search movie"
+                        >
+                        <button id="searchBtn" onclick="searchMovie()">
+                            <span id="btnText">Recommend</span>
+                            <span id="btnLoader" class="loader hidden" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <div id="suggestions" class="suggestions hidden"></div>
+                    <div id="errorMessage" class="error-message hidden"></div>
                 </div>
 
-                <!-- Autocomplete Suggestions -->
-                <div id="suggestions" class="suggestions hidden"></div>
+                <div id="selectedMovie" class="selected-movie hidden">
+                    <p>Because you liked</p>
+                    <div class="movie-badge" id="selectedMovieName"></div>
+                </div>
 
-                <!-- Error Message -->
-                <div id="errorMessage" class="error-message hidden"></div>
-            </div>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Scanning cinematic patterns...</p>
+                </div>
 
-            <!-- Selected Movie Display -->
-            <div id="selectedMovie" class="selected-movie hidden">
-                <h3>Recommendations based on:</h3>
-                <div class="movie-badge" id="selectedMovieName"></div>
+                <section id="results" class="results-section hidden">
+                    <div class="results-head">
+                        <h3>Recommended For You</h3>
+                        <a href="/api" target="_blank" rel="noreferrer">View API</a>
+                    </div>
+                    <div id="movieCards" class="movie-grid"></div>
+                </section>
             </div>
-
-            <!-- Results Section -->
-            <div id="results" class="results-section hidden">
-                <h3>Recommended Movies</h3>
-                <div id="movieCards" class="movie-grid"></div>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loading" class="loading hidden">
-                <div class="spinner"></div>
-                <p>Finding perfect recommendations for you...</p>
-            </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Footer -->
-    <footer>
+    <footer class="site-footer" id="watchlist">
         <div class="container">
-            <p>Built with ❤️ using Flask & Machine Learning</p>
-            <p class="footer-links">
-                <a href="/api" target="_blank">API Documentation</a>
-                <span class="separator">•</span>
-                <a href="https://github.com/CharchilDS" target="_blank">GitHub</a>
-            </p>
+            <p>Movie Recommender API built with Flask + ML similarity vectors.</p>
         </div>
     </footer>
 
