@@ -16,6 +16,34 @@ TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p'
 tmdb_cache = {}
 
 
+def normalize_movies(payload):
+    if isinstance(payload, pd.DataFrame):
+        if 'title' in payload.columns:
+            return payload
+        if len(payload.columns) >= 1:
+            renamed = payload.copy()
+            renamed.columns = ['title'] + list(renamed.columns[1:])
+            return renamed
+        return pd.DataFrame(columns=['title'])
+
+    if isinstance(payload, list):
+        if not payload:
+            return pd.DataFrame(columns=['title'])
+        first = payload[0]
+        if isinstance(first, dict):
+            df = pd.DataFrame(payload)
+            if 'title' not in df.columns and len(df.columns) > 0:
+                first_col = df.columns[0]
+                df = df.rename(columns={first_col: 'title'})
+            return df[['title']] if 'title' in df.columns else pd.DataFrame(columns=['title'])
+        return pd.DataFrame({'title': [str(item) for item in payload]})
+
+    return pd.DataFrame(columns=['title'])
+
+
+movies = normalize_movies(movies)
+
+
 def fetch_tmdb_movie(title):
     if not TMDB_API_KEY:
         return None
